@@ -256,12 +256,12 @@ form.setScenario('create')
 
 #### EventProps
 
-| Name         | Type     | Description       |
-| :----------- | :------- | :---------------- |
-| **ctr**      | `class`  | AbortController.  |
-| **scenario** | `string` | [scenario](#sce). |
-| **data**     | `func`   | [data](#data).    |
-| **keys**     | `func`   | [keys](#keys).    |
+| Name         | Type     | Description            |
+| :----------- | :------- | :--------------------- |
+| **ctr**      | `class`  | AbortController.       |
+| **scenario** | `string` | [scenario](#scenario). |
+| **data**     | `func`   | [data](#datascenario). |
+| **keys**     | `func`   | [keys](#keysscenario). |
 
 > `event.data(...)` If the scenario has been set, it will automatically retrieve data based on the scenario key. If you want to reset it, fill it with the value `true`, if no scenario is set, it will return all data.
 
