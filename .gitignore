@@ -4,6 +4,6 @@
 *.lock
 *.npmrc
 *.DS_Store
-
+*.babelrc
 node_modules
 src
