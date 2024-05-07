@@ -29,9 +29,9 @@
   "author": "fajarrizkyhidayat",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fajarrh/frhooks/issues"
+    "url": "https://github.com/fajarrh/ezhooks/issues"
   },
-  "homepage": "https://github.com/fajarrh/frhooks#readme",
+  "homepage": "https://github.com/fajarrh/ezhooks#readme",
   "files": [
     "lib/**/*"
   ],
