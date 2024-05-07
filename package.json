@@ -1,6 +1,6 @@
 {
   "name": "ezhooks",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Hook React",
   "main": "lib/",
   "types": "lib/index.d.ts",
@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/fajarrh/ezhooks/issues"
   },
-  "homepage": "https://github.com/fajarrh/ezhooks#readme",
+  "homepage": "https://fajarrh.github.io/ezhooks/",
   "files": [
     "lib/**/*"
   ],
