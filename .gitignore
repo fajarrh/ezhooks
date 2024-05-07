@@ -1,0 +1,9 @@
+*.mjs
+*.config.mjs
+*.npmignore
+*.lock
+*.npmrc
+*.DS_Store
+
+node_modules
+src
