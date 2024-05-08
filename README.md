@@ -1,6 +1,15 @@
 # ezhooks
 
-This is a custom hook for data processing from the frontend
+This is a custom hooks react
+
+#### requirements
+
+- react@version
+
+#### support
+
+- JavaScript
+- TypeScript
 
 ## Installation
 
@@ -14,10 +23,10 @@ or
 yarn add ezhooks
 ```
 
-- [useMutation](#usemutation)
-- [useTable](#usetable)
-- [useFetch](#usefetch)
-- [useSValidation](#usesvalidation)
+- [useMutation](#useMutation)
+- [useTable](#useTable)
+- [useFetch](#useFetch)
+- [useSValidation](#useSValidation)
 
 ### useMutation
 
@@ -103,9 +112,9 @@ return <div>
 </div>
 ```
 
-**Nested Value**
+**Nested setData**
 
-> for nested values we break them down using dots
+> for nested values we break them down using dots, **form.setData({[a`.`b`.`c`...n`]:value})**
 
 _set value if object nested (object)_
 
@@ -142,9 +151,9 @@ return <div>
 </div>
 ```
 
-**Nested Get Value**
+**Nested value**
 
-> for get values we break them down using dots
+> for get values we break them down using dots, **form.value('a`.`b`.`c`...n`')**
 
 #### increment(value`*`)
 
@@ -161,7 +170,7 @@ return <div>
 
 **Nested Increment**
 
-> for nested values we break them down using dots
+> for nested values we break them down using dots, **form.increment({[a`.`b`.`c`...n`]:value})**
 
 #### decrement(value`*`)
 
@@ -178,7 +187,7 @@ return <div>
 
 **Nested Decrement**
 
-> for nested values we break them down using dots
+> for nested values we break them down using dots, **form.decrease({[a`.`b`.`c`...n`]:value})**
 
 #### addItem(key`*`, value`*`, position)
 
@@ -193,9 +202,9 @@ form.addItem('item', {label: ''}) //default position:end
 form.addItem('item', {label: ''}, 1) //position by number:index start by 0
 ```
 
-**Nested Decrement**
+**Nested addItem**
 
-> for nested values we break them down using dots
+> for nested values we break them down using dots, **form.addItem(a`.`b`.`c`...n`, value)**
 
 #### removeItem(key`*`, condition)
 
@@ -210,9 +219,9 @@ form.removeItem('item', 0)
 form.removeItem('item', (item) => item.label === 'test') //condition with function
 ```
 
-**Nested Decrement**
+**Nested removeItem**
 
-> for nested values we break them down using dots
+> for nested values we break them down using dots, **form.removeItem(a`.`b`.`c`...n`, index)**
 
 #### reset()
 
@@ -256,12 +265,12 @@ form.setScenario('create')
 
 #### EventProps
 
-| Name         | Type     | Description            |
-| :----------- | :------- | :--------------------- |
-| **ctr**      | `class`  | AbortController.       |
-| **scenario** | `string` | [scenario](#scenario). |
-| **data**     | `func`   | [data](#datascenario). |
-| **keys**     | `func`   | [keys](#keysscenario). |
+| Name         | Type     | Description       |
+| :----------- | :------- | :---------------- |
+| **ctr**      | `class`  | AbortController.  |
+| **scenario** | `string` | [scenario](#sce). |
+| **data**     | `func`   | [data](#data).    |
+| **keys**     | `func`   | [keys](#keys).    |
 
 > `event.data(...)` If the scenario has been set, it will automatically retrieve data based on the scenario key. If you want to reset it, fill it with the value `true`, if no scenario is set, it will return all data.
 
