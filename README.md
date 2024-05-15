@@ -580,7 +580,7 @@ Hook for get request with pagination
 | **text**                 | `string`   | summary                                         |
 
 ```javascript
-import {useTable} from 'frhooks'
+import useTable from 'ezhooks/lib/useTable'
 const App = () => {
   const table = useTable({
    ...
