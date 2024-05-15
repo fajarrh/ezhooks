@@ -37,15 +37,8 @@ type UseMutation<T> = {
   reset: () => void;
   cancel: () => void;
   value: (key: keyof T, defaultValue?: any) => any;
-  addItem: (
-    key: string,
-    value: any,
-    position?: "start" | "end" | number
-  ) => void;
-  removeItem: (
-    key: string,
-    condition?: number | ((data: any) => boolean)
-  ) => void;
+  add: (key: string, value: any, position?: "start" | "end" | number) => void;
+  remove: (key: string, condition?: number | ((data: any) => boolean)) => void;
   keys: (scenario?: boolean | string) => { name: string; keys: string[] }[];
   setScenario: (scenario: string) => void;
 };

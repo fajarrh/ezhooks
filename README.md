@@ -2,6 +2,8 @@
 
 This is a custom hooks react
 
+- [npm](https://www.npmjs.com/package/ezhooks)
+
 #### requirements
 
 - react@version
@@ -189,39 +191,39 @@ return <div>
 
 > for nested values we break them down using dots, **form.decrease({[a`.`b`.`c`...n`]:value})**
 
-#### addItem(key`*`, value`*`, position)
+#### add(key`*`, value`*`, position)
 
 | Name         | Type             | Description            |
 | :----------- | :--------------- | :--------------------- |
-| **addItem**  | `func`           | add array value.       |
+| **add**      | `func`           | add array value.       |
 | **position** | `string, number` | `start, end`or`number` |
 
 ```javascript
 ...
-form.addItem('item', {label: ''}) //default position:end
-form.addItem('item', {label: ''}, 1) //position by number:index start by 0
+form.add('item', {label: ''}) //default position:end
+form.add('item', {label: ''}, 1) //position by number:index start by 0
 ```
 
-**Nested addItem**
+**Nested add**
 
-> for nested values we break them down using dots, **form.addItem(a`.`b`.`c`...n`, value)**
+> for nested values we break them down using dots, **form.add(a`.`b`.`c`...n`, value)**
 
-#### removeItem(key`*`, condition)
+#### remove(key`*`, condition)
 
 | Name           | Type          | Description                             |
 | :------------- | :------------ | :-------------------------------------- |
-| **removeItem** | `func`        | add array value.                        |
+| **remove**     | `func`        | add array value.                        |
 | **conditionn** | `number,func` | number of index data or func(condition) |
 
 ```javascript
 ...
-form.removeItem('item', 0)
-form.removeItem('item', (item) => item.label === 'test') //condition with function
+form.remove('item', 0)
+form.remove('item', (item) => item.label === 'test') //condition with function
 ```
 
-**Nested removeItem**
+**Nested remove**
 
-> for nested values we break them down using dots, **form.removeItem(a`.`b`.`c`...n`, index)**
+> for nested values we break them down using dots, **form.remove(a`.`b`.`c`...n`, index)**
 
 #### reset()
 
