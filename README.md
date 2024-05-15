@@ -29,6 +29,9 @@ yarn add ezhooks
 - [useTable](#useTable)
 - [useFetch](#useFetch)
 - [useSValidation](#useSValidation)
+- [useFetch & useTable array manipulation](#usefetch--usetable)
+
+> for `service` http request can use `axios, fetch, ...etc`
 
 ### useMutation
 
@@ -580,10 +583,39 @@ Hook for get request with pagination
 | **text**                 | `string`   | summary                                         |
 
 ```javascript
+
+// api response
+
+{
+  "total": 100,
+  "data" : [...]
+}
+
+```
+
+```javascript
 import useTable from 'ezhooks/lib/useTable'
+// import { EventTable } from 'ezhooks/lib/useTable' if typescripts
+
+
+const getExample = async (event: EventTable) => {
+  let url = 'http://example.com/products'
+  const params =  new URLSearchParams(event.params)
+  url += `?${params.toString()}`
+
+  const req = await fetch(url, {
+    signal: event.ctr.signal
+  })
+
+  return await req.json()
+}
+
+
 const App = () => {
   const table = useTable({
-   ...
+    service: getExample,
+    selector: (resp) => resp.data,
+    total: (resp) => resp.total,
     // this option for custom sort
     sort: {
       params: {
@@ -609,12 +641,12 @@ const App = () => {
       disableFirst: (total, page, df) => total !== 0 && page === df,
       disableLast: (total, page, lp) => total !== 0 && page === lp,
     },
-  })
+  });
 
   render <div>
       <div>
       <input type="text" value={table.query('title', '')} onChange={e => table.setQuery({title: e.target.value})} />
-          {table.pagination.text} //summary
+          {table.pagination.text} <!-- summary !-->
 
           <button {...table.pagination.firstButton()}>prev</button>
           <button {...table.pagination.backButton()}>prev</button>
