@@ -110,7 +110,7 @@ type UseTablePagination = {
     HTMLButtonElement
   >;
   onPerPageChange: (
-    event?: React.ChangeEvent<HTMLAreaElement | HTMLInputElement>
+    event?: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
 };
 

@@ -3,6 +3,7 @@
  *  @author Fajar Rizky Hidayat <fajarrizkyhidayat@gmail.com>
  */
 
+
 interface UseMutationProps<T> {
   defaultValue: T;
   scenario?: Record<string, Array<keyof T>>;
@@ -36,7 +37,7 @@ type UseMutation<T> = {
   send: <F = UseMutation<T>["data"], S = any>(option: SendProps<F>) => S;
   reset: () => void;
   cancel: () => void;
-  value: (key: keyof T, defaultValue?: any) => any;
+  value: (key: import('.').DeepKeys<T>, defaultValue?: any) => any;
   add: (key: string, value: any, position?: "start" | "end" | number) => void;
   remove: (key: string, condition?: number | ((data: any) => boolean)) => void;
   keys: (scenario?: boolean | string) => { name: string; keys: string[] }[];
