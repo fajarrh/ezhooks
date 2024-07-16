@@ -30,6 +30,7 @@ yarn add ezhooks
 - [useFetch](#useFetch)
 - [useSValidation](#useSValidation)
 - [useFetch & useTable array manipulation](#usefetch--usetable)
+- [useRequest](#useRequest)
 
 > for `service` http request can use `axios, fetch, ...etc`
 
@@ -207,6 +208,21 @@ form.add('item', {label: ''}) //default position:end
 form.add('item', {label: ''}, 1) //position by number:index start by 0
 ```
 
+#### upsert(key`*`, value`*`, attr: `*`, position)
+
+| Name         | Type             | Description            |
+| :----------- | :--------------- | :--------------------- |
+| **add**      | `func`           | add array value.       |
+| **value**    | `array, func`    | value                  |
+| **attr**     | `array`          | array key              |
+| **position** | `string, number` | `start, end`or`number` |
+
+```javascript
+...
+form.upsert('item', {label: ''}, ['id']) //default position:end
+form.upsert('item', (p) => ({...p, label: 'test'}), ['label']) //default position:end
+```
+
 **Nested add**
 
 > for nested values we break them down using dots, **form.add(a`.`b`.`c`...n`, value)**
@@ -301,7 +317,7 @@ function onSubmit(){
 _[TS EventProps](#eventprops)_
 
 ```javascript
-// import { EventSend } from 'ezhooks/lib/useMutation' if typescripts
+import { EventSend } from "ezhooks"; //TS
 const addExample = async (event: EventSend) => {
   return fetch("http:example.com", {
     method: "post",
@@ -426,7 +442,7 @@ const App = () => {
 | **loading** | `bool` | Gives an indication of the process in progress. |
 
 ```javascript
-form.loading ? "loading...." : <div>...</div>;
+fetch.loading ? "loading...." : <div>...</div>;
 ```
 
 #### isEmpty
@@ -436,7 +452,7 @@ form.loading ? "loading...." : <div>...</div>;
 | **isEmpty** | `bool` | Gives an indication of if empty data. |
 
 ```javascript
-form.isEmpty ? "Data not available" : <div>...</div>;
+fetch.isEmpty ? "Data not available" : <div>...</div>;
 ```
 
 #### data
@@ -446,7 +462,7 @@ form.isEmpty ? "Data not available" : <div>...</div>;
 | **data** | `T`  | value.      |
 
 ```javascript
-form.data;
+fetch.data;
 ```
 
 #### query
@@ -456,7 +472,7 @@ form.data;
 | **query** | `object` | query parameters |
 
 ```javascript
-form.query;
+fetch.query;
 ```
 
 #### setQuery(value`*`)
@@ -469,7 +485,7 @@ form.query;
 <input
   type="search"
   name="keywords"
-  onChange={(e) => fetch.setQuery({ [e.target.name]: fetch.target.value })}
+  onChange={(e) => fetch.setQuery({ [e.target.name]: e.target.value })}
 />
 ```
 
@@ -595,10 +611,9 @@ Hook for get request with pagination
 
 ```javascript
 import useTable from 'ezhooks/lib/useTable'
-// import { EventTable } from 'ezhooks/lib/useTable' if typescripts
+import { EventSend } from "ezhooks";
 
-
-const getExample = async (event: EventTable) => {
+const getExample = async (event: EventSend) => {
   let url = 'http://example.com/products'
   const params =  new URLSearchParams(event.params)
   url += `?${params.toString()}`
@@ -836,6 +851,168 @@ server.validate({
             .then((resp) => {
         event.parser(resp.error);
         });
+    }
+})
+```
+
+### useRequest
+
+Hook minimal can direct for get data
+
+#### Generic Props
+
+| Name        | Type   | Description                  |
+| ----------- | ------ | ---------------------------- |
+| **data`*`** | `func` | default values for the data. |
+
+#### Usage
+
+```javascript
+import useRequest from 'ezhooks/lib/useRequest';
+
+const App = () => {
+    const req = useRequest({
+        data: []// or {}
+    })
+    ...
+}
+```
+
+> for service can use another service request like fetch, axios ..etc
+
+### Props
+
+#### loading
+
+| Name        | Type   | Description                                     |
+| :---------- | :----- | :---------------------------------------------- |
+| **loading** | `bool` | Gives an indication of the process in progress. |
+
+```javascript
+req.loading ? "loading...." : <div>...</div>;
+```
+
+#### isEmpty
+
+| Name        | Type   | Description                           |
+| :---------- | :----- | :------------------------------------ |
+| **isEmpty** | `bool` | Gives an indication of if empty data. |
+
+```javascript
+req.isEmpty ? "Data not available" : <div>...</div>;
+```
+
+#### data
+
+| Name     | Type | Description |
+| :------- | :--- | :---------- |
+| **data** | `T`  | value.      |
+
+```javascript
+req.data;
+```
+
+#### query
+
+| Name      | Type     | Description      |
+| :-------- | :------- | :--------------- |
+| **query** | `object` | query parameters |
+
+```javascript
+req.query;
+```
+
+#### setQuery(value`*`)
+
+| Name         | Type   | Description            |
+| :----------- | :----- | :--------------------- |
+| **setQuery** | `func` | function for set query |
+
+```javascript
+<input
+  type="search"
+  name="keywords"
+  onChange={(e) => req.setQuery({ [e.target.name]: e.target.value })}
+/>
+```
+
+#### getQuery(key`*`, defaultValue = '')
+
+| Name         | Type   | Description            |
+| :----------- | :----- | :--------------------- |
+| **setQuery** | `func` | function for set query |
+
+```javascript
+<input type='search' name='keywords' ... value={fecth.getQuery('keywords')}) />
+```
+
+#### clear(clean?: boolean)
+
+| Name      | Type   | Description                                       |
+| :-------- | :----- | :------------------------------------------------ |
+| **clear** | `func` | function for clear all query or some query by key |
+
+```javascript
+<button onClick={ ()=> req.clear(true)}>Reset Clean</button>
+<button onClick={ ()=> req.clear()}>Reset</button>
+```
+
+#### cancel()
+
+| Name       | Type   | Description            |
+| :--------- | :----- | :--------------------- |
+| **cancel** | `func` | cancel request pending |
+
+```javascript
+<button onClick={req.cancel}>Cancel</button>
+```
+
+#### exec(props`*`)
+
+| Name           | Type   | Description                                              |
+| :------------- | :----- | :------------------------------------------------------- |
+| **service`*`** | `func` | service.                                                 |
+| **onSuccess**  | `func` | The function callback on success and returns a response. |
+| **onError**    | `func` | The function calls back on failure and returns a error.  |
+| **onAlways**   | `func` | function calls back same 'finally' on promise            |
+
+#### EventProps
+
+| Name       | Type     | Description      |
+| :--------- | :------- | :--------------- |
+| **ctr**    | `class`  | AbortController. |
+| **params** | `object` | param            |
+
+```javascript
+...
+//or
+req.exec({
+    service: async (event) => {
+        const resp = await fetch("http://example/product")
+        return await resp.json()
+    },
+    onSuccess:(resp) => resp.data
+})
+//or
+req.exec({
+    service: async (event) => {
+        const resp = await fetch("http://example/product")
+        return await resp.json()
+    }
+})
+//or
+const resp = await  req.exec({
+    service: async (event) => {
+        const resp = await fetch("http://example/product")
+        return await resp.json()
+    },
+    onSuccess:(resp) => resp.data
+})
+//or
+const resp = await  req.exec({
+    service: async (event) => {
+        const resp = await fetch("http://example/product")
+        return await resp.json()
     }
 })
 ```
