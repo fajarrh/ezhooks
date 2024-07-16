@@ -114,13 +114,8 @@ type UseTablePagination = {
   ) => void;
 };
 
-type EventTable = {
-  ctr: AbortController;
-  params: Record<string, any>;
-};
-
-interface UseTableProps<T> {
-  service: (event: EventTable) => T;
+interface UseTableProps<T = any> {
+  service: (event?: import(".").EventSend<T>) => T;
   selector: (resp: any) => any;
   total?: (resp: any) => number;
   replaceUrl?: boolean;

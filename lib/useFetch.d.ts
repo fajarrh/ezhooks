@@ -3,12 +3,8 @@
  *  @author Fajar Rizky Hidayat <fajarrizkyhidayat@gmail.com>
  */
 
-type EventFetch = {
-  ctr: AbortController;
-};
-
-interface FetchProps<T> {
-  service: (resp: EventFetch) => any;
+interface FetchProps<T = any> {
+  service: (resp?: import(".").EventSend<T>) => any;
   selector: (resp: any) => any;
   defaultValue?: T;
   disabledOnDidMount?: boolean;
@@ -22,9 +18,7 @@ type UseFetch<T = any> = {
   loading: boolean;
   data: T;
   query: object;
-  setQuery: <S = T>(
-    value: Partial<S> | ((obj: Partial<S>) => Partial<S>)
-  ) => void;
+  setQuery: (value: any | ((obj: any) => any)) => void;
   clear: (fields?: {
     except?: ReadonlyArray<keyof T>;
     only?: ReadonlyArray<keyof T>;

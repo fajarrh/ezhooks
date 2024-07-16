@@ -1,6 +1,6 @@
 {
   "name": "ezhooks",
-  "version": "0.1.5",
+  "version": "1.2.3",
   "description": "Hook React",
   "main": "lib/",
   "types": "lib/index.d.ts",

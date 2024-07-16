@@ -3,14 +3,8 @@
  *  @author Fajar Rizky Hidayat <fajarrizkyhidayat@gmail.com>
  */
 
-type EventValidation<T> = {
-  ctr: AbortController;
-  data: T;
-  parser: (value: any) => void;
-};
-
 type UseSValidationProps<T> = {
-  service?: (event: EventValidation<T>) => any;
+  service?: (event?: import(".").EventSend<T>) => any;
   data: T;
   message?: Record<string, (params: any) => string>;
   param?: {

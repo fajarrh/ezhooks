@@ -3,7 +3,6 @@
  *  @author Fajar Rizky Hidayat <fajarrizkyhidayat@gmail.com>
  */
 
-
 interface UseMutationProps<T> {
   defaultValue: T;
   scenario?: Record<string, Array<keyof T>>;
@@ -12,16 +11,9 @@ interface UseMutationProps<T> {
   };
 }
 
-type EventSend<T> = {
-  ctr: AbortController;
-  scenario: string;
-  data: (scenario?: string | boolean) => Partial<T>;
-  keys: (scenario?: boolean | string) => { name: string; keys: string[] }[];
-};
-
 type SendProps<T = any, S = any> = {
   scenario?: string;
-  service: (event: EventSend<T>) => S;
+  service: (event: import('.').EventSend<T>) => S;
   onSuccess?: (data: any) => void;
   onError?: (e: any) => void;
   onAlways?: () => void;
@@ -34,12 +26,25 @@ type UseMutation<T> = {
   setData: (value: Partial<T>) => void;
   increment: (value: Partial<T>) => void;
   decrement: (value: Partial<T>) => void;
-  send: <F = UseMutation<T>["data"], S = any>(option: SendProps<F>) => S;
+  send: <F = UseMutation<T>["data"], S = any>(option?: SendProps<F>) => S;
   reset: () => void;
   cancel: () => void;
-  value: (key: import('.').DeepKeys<T>, defaultValue?: any) => any;
-  add: (key: string, value: any, position?: "start" | "end" | number) => void;
-  remove: (key: string, condition?: number | ((data: any) => boolean)) => void;
+  value: <V = any>(key: import(".").DeepKeys<T>, defaultValue?: any) => V;
+  add: (
+    key: import(".").DeepKeys<T> | {},
+    value: any,
+    position?: "start" | "end" | number
+  ) => void;
+  upsert: (
+    key: import(".").DeepKeys<T> | {},
+    val: any,
+    attr?: string[],
+    position?: "start" | "end" | number
+  ) => void;
+  remove: (
+    key: import(".").DeepKeys<T> | {},
+    condition?: number | ((data: any) => boolean)
+  ) => void;
   keys: (scenario?: boolean | string) => { name: string; keys: string[] }[];
   setScenario: (scenario: string) => void;
 };
