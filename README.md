@@ -25,12 +25,12 @@ or
 yarn add ezhooks
 ```
 
-- [useMutation](#useMutation)
-- [useTable](#useTable)
-- [useFetch](#useFetch)
-- [useSValidation](#useSValidation)
+- [useMutation](#usemutation)
+- [useTable](#usetable)
+- [useFetch](#usefetch)
+- [useSValidation](#usesvalidation)
 - [useFetch & useTable array manipulation](#usefetch--usetable)
-- [useRequest](#useRequest)
+- [useRequest](#userequest)
 
 > for `service` http request can use `axios, fetch, ...etc`
 
