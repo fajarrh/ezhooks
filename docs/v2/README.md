@@ -1,24 +1,33 @@
-# ezhooks Usage Guide
+# 🪝 ezhooks Usage Guide
 
-Complete guide for all hooks in ezhooks library with best practices and real-world examples.
-
-## Table of Contents
-
-- [useRefMutation](#userefmutation)
-- [useArray](#usearray)
-- [useFetch](#usefetch)
-- [useMutation](#usemutation)
-- [useTable](#usetable)
+> **Complete guide for all hooks in ezhooks library with best practices and real-world examples.**
 
 ---
 
-## useRefMutation
+## 📑 Table of Contents
 
-**Purpose**: Form handling with built-in store, async operations, and data validation/transformation via resolver.
+- [🎯 useRefMutation](#userefmutation) - Form handling with validation & async operations
+- [📋 useArray](#usearray) - Reactive array operations
+- [🌐 useFetch](#usefetch) - Multi-key fetch management
+- [🔄 useMutation](#usemutation) - State management with mutations
+- [📊 useTable](#usetable) - Advanced table with pagination & sorting
 
-### Basic Usage
+---
 
-Simple form with controlled inputs and async submission. This example shows how to use `handleSubmit` to process form data and `send` for API calls.
+## 🎯 useRefMutation
+
+**Purpose**: Form handling with built-in store, async operations, and data transformation/processing via resolver.
+
+> **💡 Note**: The `resolver` prop is a function that processes form data before submission. It can be used for:
+> - ✅ Validation (e.g., Zod, Yup, custom validators)
+> - 🔄 Data transformation (e.g., formatting, normalization)
+> - 📊 Business logic (e.g., calculations, aggregations)
+> - ⚙️ Any preprocessing before sending data to API
+
+### 📝 Basic Usage
+
+**Simple form with controlled inputs and async submission.**  
+The `service` function receives an event object with `ctr` (AbortController), `params`, and `data()` function.
 
 ```typescript
 import { useRefMutation } from 'ezhooks';
@@ -34,7 +43,19 @@ function LoginForm() {
   return (
     <form onSubmit={form.handleSubmit((result) => {
       form.send({
-        service: async () => api.login(result),
+        service: async ({ ctr, data }) => {
+          // Event object contains:
+          // - ctr: AbortController for request cancellation
+          // - params: optional parameters passed to send()
+          // - data(): function to get current form data
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data()),
+            signal: ctr.signal  // Enable request cancellation
+          });
+          return response.json();
+        },
         onSuccess: (response) => {
           console.log('Login successful:', response);
         },
@@ -61,9 +82,10 @@ function LoginForm() {
 }
 ```
 
-### With Zod Validation
+### ✅ With Resolver (Validation Example)
 
-Integrate Zod schema validation with `resolver` prop. The resolver receives form data, validates it, and returns a result that can be checked in `handleSubmit`. Error messages are accessible via `resolverResult`.
+**Integrate Zod schema validation with `resolver` prop.**  
+The resolver receives form data and returns validation results that can be checked in `handleSubmit`.
 
 ```typescript
 import { z } from 'zod';
@@ -128,9 +150,10 @@ function RegisterForm() {
 }
 ```
 
-### Custom Validation with Resolver
+### 🔄 With Resolver (Data Transformation Example)
 
-Implement custom validation logic using a resolver function. This approach is useful when you need full control over validation without external libraries.
+**Use resolver for data transformation and preprocessing.**  
+This example shows how to format and calculate data before submission, not just validation.
 
 ```typescript
 type FormErrors = Record<string, string>;
@@ -234,9 +257,10 @@ function ContactForm() {
 }
 ```
 
-### Array Operations
+### 📋 Array Operations
 
-Manage array fields with built-in operations like `add`, `remove`, and `array`. Perfect for dynamic form fields like tags, todos, or multi-select options.
+**Manage array fields with built-in operations.**  
+Perfect for dynamic form fields like tags, todos, or multi-select options using `add`, `remove`, and `array` methods.
 
 ```typescript
 function TodoForm() {
@@ -290,7 +314,90 @@ function TodoForm() {
 }
 ```
 
-### API Reference
+### ⚡ Without Form Element
+
+**Use useRefMutation without a `<form>` element.**  
+Call `send` directly from button handlers. Useful for inline editing, settings panels, or non-traditional form layouts.
+
+```typescript
+function UserSettings() {
+  const settings = useRefMutation({
+    defaultValue: {
+      notifications: true,
+      theme: 'dark',
+      language: 'en'
+    }
+  });
+
+  const saveSettings = () => {
+    settings.send({
+      service: async ({ ctr, data }) => {
+        // Use the event object to access data and abort controller
+        const response = await fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data()),  // Get current state via data()
+          signal: ctr.signal  // Enable cancellation
+        });
+        return response.json();
+      },
+      onSuccess: () => {
+        console.log('Settings saved!');
+      },
+      onError: (error) => {
+        console.error('Failed to save:', error);
+      }
+    });
+  };
+
+  return (
+    <div>
+      <h2>Settings</h2>
+      
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={settings.value('notifications')}
+            onChange={(e) => settings.setValue({ notifications: e.target.checked })}
+          />
+          Enable Notifications
+        </label>
+      </div>
+
+      <div>
+        <label>Theme</label>
+        <select
+          value={settings.value('theme')}
+          onChange={(e) => settings.setValue({ theme: e.target.value })}
+        >
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Language</label>
+        <select
+          value={settings.value('language')}
+          onChange={(e) => settings.setValue({ language: e.target.value })}
+        >
+          <option value="en">English</option>
+          <option value="id">Indonesian</option>
+        </select>
+      </div>
+
+      <button onClick={saveSettings} disabled={settings.processing}>
+        {settings.processing ? 'Saving...' : 'Save Settings'}
+      </button>
+      
+      <button onClick={() => settings.reset()}>Reset to Default</button>
+    </div>
+  );
+}
+```
+
+### 📚 API Reference
 
 | Property/Method | Type | Description |
 |----------------|------|-------------|
@@ -313,13 +420,14 @@ function TodoForm() {
 
 ---
 
-## useArray
+## 📋 useArray
 
 **Purpose**: Reactive array operations on a specific path in FlattenStore with automatic re-rendering.
 
-### Basic Usage
+### 🎯 Basic Usage
 
-Manage arrays with reactive operations. The `useArray` hook subscribes to a specific path in the store and provides optimized array manipulation methods.
+**Manage arrays with reactive operations.**  
+The `useArray` hook subscribes to a specific path in the store and provides optimized array manipulation methods.
 
 ```typescript
 import { useRefMutation, useArray } from 'ezhooks';
@@ -377,9 +485,10 @@ function ShoppingCart() {
 }
 ```
 
-### Nested Arrays
+### 🔗 Nested Arrays
 
-Access and manipulate arrays in nested objects using dot notation paths. This example shows working with arrays deep in your data structure.
+**Access and manipulate arrays in nested objects.**  
+Use dot notation paths to work with arrays deep in your data structure.
 
 ```typescript
 function UserProfile() {
@@ -418,9 +527,10 @@ function UserProfile() {
 }
 ```
 
-### Replace Entire Array
+### 🔄 Replace Entire Array
 
-Use `setValue` to replace the entire array with new data. Ideal for loading data from API responses or resetting array state.
+**Use `setValue` to replace the entire array with new data.**  
+Ideal for loading data from API responses or resetting array state.
 
 ```typescript
 function TaskList() {
@@ -452,7 +562,7 @@ function TaskList() {
 }
 ```
 
-### API Reference
+### 📚 API Reference
 
 | Property/Method | Type | Description |
 |----------------|------|-------------|
@@ -466,13 +576,64 @@ function TaskList() {
 
 ---
 
-## useFetch
+## 🌐 useFetch
 
 **Purpose**: Multi-key fetch management with loading states, params, and automatic request cancellation.
 
-### Basic Usage
+> **💡 Note**:  
+> - **With `map`**: You must use `selector()` method to access data and perform operations  
+> - **Without `map`**: Call `fetch()` directly on any key
 
-Fetch data from a single endpoint with loading state management. The `service` function receives params and abort controller for cancellation support.
+### 🚀 Basic Usage (Without Map)
+
+**Fetch data without predefined keys.**  
+Call `fetch()` directly with any key. The simplest approach for dynamic or single-endpoint fetching.
+
+```typescript
+import { useFetch } from 'ezhooks';
+
+function UserProfile() {
+  const fetcher = useFetch();
+
+  React.useEffect(() => {
+    fetcher.fetch('profile', {
+      url: '/api/profile',
+      onJson: (response, cb) => {
+        cb(response.data);
+      },
+      onSuccess: (response) => {
+        console.log('Profile loaded');
+      },
+      loading: true
+    });
+  }, []);
+
+  if (fetcher.data?.profile?.loading) {
+    return <div>Loading profile...</div>;
+  }
+
+  return (
+    <div>
+      <h2>{fetcher.data?.profile?.data?.name}</h2>
+      <p>{fetcher.data?.profile?.data?.email}</p>
+      <button onClick={() => {
+        fetcher.fetch('profile', {
+          url: '/api/profile',
+          onJson: (response, cb) => cb(response.data),
+          loading: true
+        });
+      }}>
+        Refresh
+      </button>
+    </div>
+  );
+}
+```
+
+### 🗺️ With Map and Service Functions
+
+**When using `map` with predefined keys, you must use `selector()`.**  
+The `service` function receives an event object with `ctr` (AbortController) and `params`.
 
 ```typescript
 import { useFetch } from 'ezhooks';
@@ -482,25 +643,31 @@ function UserList() {
     map: ['users'],
     service: {
       users: async ({ params, ctr }) => {
+        // Event object contains:
+        // - ctr: AbortController for request cancellation
+        // - params: parameters passed to the fetch call
         const response = await fetch(`/api/users?page=${params.page}`, {
-          signal: ctr.signal
+          signal: ctr.signal  // Enable cancellation
         });
         return response.json();
       }
     }
   });
 
+  // Must use selector() to access 'users' key data
+  const users = fetch.selector('users');
+
   useEffect(() => {
-    fetch.call('users', { params: { page: 1 } });
+    users.fetch({ params: { page: 1 } });
   }, []);
 
-  if (fetch.loading('users')) {
+  if (users.loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
-      {fetch.selector('users', (data) => data?.users || []).map(user => (
+      {users.data?.users?.map(user => (
         <div key={user.id}>{user.name}</div>
       ))}
     </div>
@@ -508,44 +675,52 @@ function UserList() {
 }
 ```
 
-### Multiple Endpoints
+### 🔀 Multiple Endpoints with Map
 
-Manage multiple API endpoints independently with separate loading states. Each endpoint has its own key and can be called independently.
+**Manage multiple API endpoints independently.**  
+Each key in the `map` must be accessed via `selector(key)` to get its data and operations with separate loading states.
 
 ```typescript
 function Dashboard() {
   const fetch = useFetch({
     map: ['users', 'posts', 'stats'],
     service: {
-      users: async () => {
-        const res = await fetch('/api/users');
+      users: async ({ ctr }) => {
+        const res = await fetch('/api/users', { signal: ctr.signal });
         return res.json();
       },
-      posts: async ({ params }) => {
-        const res = await fetch(`/api/posts?limit=${params.limit}`);
+      posts: async ({ params, ctr }) => {
+        const res = await fetch(`/api/posts?limit=${params.limit}`, {
+          signal: ctr.signal
+        });
         return res.json();
       },
-      stats: async () => {
-        const res = await fetch('/api/stats');
+      stats: async ({ ctr }) => {
+        const res = await fetch('/api/stats', { signal: ctr.signal });
         return res.json();
       }
     }
   });
 
+  // Use selector() to access each key
+  const users = fetch.selector('users');
+  const posts = fetch.selector('posts');
+  const stats = fetch.selector('stats');
+
   useEffect(() => {
-    fetch.call('users');
-    fetch.call('posts', { params: { limit: 10 } });
-    fetch.call('stats');
+    users.fetch();
+    posts.fetch({ params: { limit: 10 } });
+    stats.fetch();
   }, []);
 
   return (
     <div>
       <section>
         <h2>Users</h2>
-        {fetch.loading('users') ? (
+        {users.loading ? (
           <div>Loading users...</div>
         ) : (
-          fetch.selector('users', (data) => data?.users || []).map(user => (
+          users.data?.users?.map(user => (
             <div key={user.id}>{user.name}</div>
           ))
         )}
@@ -553,10 +728,10 @@ function Dashboard() {
 
       <section>
         <h2>Posts</h2>
-        {fetch.loading('posts') ? (
+        {posts.loading ? (
           <div>Loading posts...</div>
         ) : (
-          fetch.selector('posts', (data) => data?.posts || []).map(post => (
+          posts.data?.posts?.map(post => (
             <div key={post.id}>{post.title}</div>
           ))
         )}
@@ -564,10 +739,10 @@ function Dashboard() {
 
       <section>
         <h2>Statistics</h2>
-        {fetch.loading('stats') ? (
+        {stats.loading ? (
           <div>Loading...</div>
         ) : (
-          <div>{fetch.selector('stats', (data) => data?.total || 0)}</div>
+          <div>{stats.data?.total || 0}</div>
         )}
       </section>
     </div>
@@ -575,9 +750,10 @@ function Dashboard() {
 }
 ```
 
-### With Params Management
+### ⚙️ With Params Management
 
-Dynamically manage request parameters with `setParams` and `getParams`. Perfect for implementing search, filters, or pagination.
+**Dynamically manage request parameters using selector methods.**  
+When using `map`, access each key with `selector()` to manage its params.
 
 ```typescript
 function SearchResults() {
@@ -594,15 +770,17 @@ function SearchResults() {
     }
   });
 
+  const search = fetch.selector('search');
+
   const handleSearch = (query: string) => {
-    fetch.setParams('search', { q: query, page: 1 });
-    fetch.call('search');
+    search.setQuery({ q: query, page: 1 });
+    search.fetch();
   };
 
   const loadMore = () => {
-    const currentPage = fetch.getParams('search').page || 1;
-    fetch.setParams('search', { page: currentPage + 1 });
-    fetch.call('search');
+    const currentPage = search.query('page') || 1;
+    search.setQuery({ page: currentPage + 1 });
+    search.fetch();
   };
 
   return (
@@ -613,15 +791,15 @@ function SearchResults() {
         placeholder="Search..."
       />
       
-      {fetch.loading('search') && <div>Searching...</div>}
+      {search.loading && <div>Searching...</div>}
       
       <div>
-        {fetch.selector('search', (data) => data?.results || []).map(item => (
+        {search.data?.results?.map(item => (
           <div key={item.id}>{item.title}</div>
         ))}
       </div>
       
-      <button onClick={loadMore} disabled={fetch.processing('search')}>
+      <button onClick={loadMore} disabled={search.processing}>
         Load More
       </button>
     </div>
@@ -629,28 +807,142 @@ function SearchResults() {
 }
 ```
 
-### API Reference
+### 🔑 Without Map (Dynamic Keys)
+
+**Use useFetch without predefined `map` array for dynamic endpoints.**  
+Call `fetch()` directly with any key - no need for `selector()`.
+
+```typescript
+function DynamicDataFetcher() {
+  const fetcher = useFetch();
+  const [selectedUser, setSelectedUser] = React.useState<number | null>(null);
+
+  const loadUser = (userId: number) => {
+    setSelectedUser(userId);
+    
+    // Call fetch directly with a key
+    fetcher.fetch(`user-${userId}`, {
+      url: `/api/users/${userId}`,
+      onJson: (response, cb) => {
+        cb(response.data);
+      },
+      onSuccess: (response) => {
+        console.log('User loaded:', response);
+      },
+      loading: true
+    });
+  };
+
+  const currentUserKey = `user-${selectedUser}`;
+  const userData = fetcher.data?.[currentUserKey];
+
+  return (
+    <div>
+      <h2>User Viewer</h2>
+      
+      <div>
+        <button onClick={() => loadUser(1)}>Load User 1</button>
+        <button onClick={() => loadUser(2)}>Load User 2</button>
+        <button onClick={() => loadUser(3)}>Load User 3</button>
+      </div>
+
+      {selectedUser && (
+        <div>
+          {userData?.loading ? (
+            <div>Loading user {selectedUser}...</div>
+          ) : (
+            <div>
+              <h3>User {selectedUser} Data</h3>
+              <pre>{JSON.stringify(userData?.data, null, 2)}</pre>
+              <button onClick={() => loadUser(selectedUser)}>Reload</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### 🎛️ With Service Function (No Map)
+
+**Use service functions with dynamic keys for more control.**  
+Without `map`, call `fetch()` directly with any key.
+
+```typescript
+function ApiExplorer() {
+  const api = useFetch();
+  const [endpoint, setEndpoint] = React.useState('');
+  const [lastKey, setLastKey] = React.useState('');
+
+  const testEndpoint = () => {
+    const key = `test-${Date.now()}`;
+    setLastKey(key);
+    
+    api.fetch(key, {
+      service: async ({ ctr }) => {
+        const response = await fetch(endpoint, {
+          signal: ctr.signal
+        });
+        return response.json();
+      },
+      onSuccess: (response, cb) => {
+        cb(response);
+        console.log('API Response:', response);
+      },
+      onError: (error) => {
+        console.error('API Error:', error);
+      },
+      loading: true
+    });
+  };
+
+  const testData = api.data?.[lastKey];
+
+  return (
+    <div>
+      <h2>API Explorer</h2>
+      <input
+        type="text"
+        value={endpoint}
+        onChange={(e) => setEndpoint(e.target.value)}
+        placeholder="Enter API endpoint..."
+      />
+      <button onClick={testEndpoint} disabled={testData?.loading}>
+        {testData?.loading ? 'Testing...' : 'Test Endpoint'}
+      </button>
+      
+      {testData?.data && (
+        <pre>{JSON.stringify(testData.data, null, 2)}</pre>
+      )}
+    </div>
+  );
+}
+```
+
+### 📚 API Reference
 
 | Method | Type | Description |
 |--------|------|-------------|
-| `call(key, options?)` | `(key, options?) => Promise<void>` | Execute fetch |
-| `loading(key)` | `(key) => boolean` | Get loading state |
-| `processing(key)` | `(key) => boolean` | Get processing state |
-| `selector(key, fn)` | `(key, fn) => any` | Select data with function |
-| `setParams(key, params)` | `(key, params) => void` | Set request params |
-| `getParams(key)` | `(key) => object` | Get current params |
-| `clearParams(key, type?)` | `(key, type?) => void` | Clear params |
-| `cancel(key)` | `(key) => void` | Cancel request |
+| `fetch(key, options)` | `(key, options) => Promise<void>` | Execute fetch (without map) |
+| `data` | `object` | All fetched data by key (without map) |
+| `selector(key)` | `(key) => object` | Get scoped API for key (with map only) |
+| `loading(key)` | `(key) => boolean` | Get loading state (with map) |
+| `processing(key)` | `(key) => boolean` | Get processing state (with map) |
+
+**When using `map`**: Use `selector(key)` to access each key's data and operations.  
+**Without `map`**: Call `fetch(key, options)` directly and access data via `fetcher.data[key]`.
 
 ---
 
-## useMutation
+## 🔄 useMutation
 
 **Purpose**: State management with mutation operations and async actions.
 
-### Basic Usage
+### 🎯 Basic Usage
 
-Simple state management with built-in increment/decrement operations. Great for counters, toggles, and numeric state.
+**Simple state management with built-in operations.**  
+Great for counters, toggles, and numeric state with `increment` and `decrement` methods.
 
 ```typescript
 import { useMutation } from 'ezhooks';
@@ -679,9 +971,10 @@ function Counter() {
 }
 ```
 
-### CRUD Operations
+### ✏️ CRUD Operations
 
-Full CRUD operations for managing lists of items. Use `add`, `upsert`, and `remove` to manipulate array data reactively.
+**Full CRUD operations for managing lists of items.**  
+Use `add`, `upsert`, and `remove` to manipulate array data reactively.
 
 ```typescript
 interface Todo {
@@ -751,9 +1044,10 @@ function TodoApp() {
 }
 ```
 
-### With Async Send
+### 🚀 With Async Send
 
-Perform async operations with error handling and loading states. The `send` method provides a clean way to handle API calls.
+**Perform async operations with error handling and loading states.**  
+The `send` method provides a clean way to handle API calls.
 
 ```typescript
 function UserProfile() {
@@ -767,11 +1061,15 @@ function UserProfile() {
 
   const saveProfile = () => {
     mutation.send({
-      service: async () => {
+      service: async ({ ctr, data }) => {
+        // Event object provides:
+        // - ctr: AbortController for cancellation
+        // - data(): function to get current mutation state
         const response = await fetch('/api/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(mutation.data())
+          body: JSON.stringify(data()),
+          signal: ctr.signal
         });
         return response.json();
       },
@@ -811,7 +1109,7 @@ function UserProfile() {
 }
 ```
 
-### API Reference
+### 📚 API Reference
 
 | Property/Method | Type | Description |
 |----------------|------|-------------|
@@ -830,13 +1128,14 @@ function UserProfile() {
 
 ---
 
-## useTable
+## 📊 useTable
 
 **Purpose**: Advanced table management with pagination, sorting, search, and data operations.
 
-### Basic Usage
+### 🎯 Basic Usage
 
-Basic table with pagination. The `selector` extracts data from response, while `total` provides the total count for pagination calculation.
+**Basic table with pagination support.**  
+The `selector` extracts data from response, while `total` provides the total count for pagination calculation.
 
 ```typescript
 import { useTable } from 'ezhooks';
@@ -917,9 +1216,10 @@ function UsersTable() {
 }
 ```
 
-### With Search and Filters
+### 🔍 With Search and Filters
 
-Add search and filtering capabilities to your table. Dynamic params update triggers automatic re-fetching with new criteria.
+**Add search and filtering capabilities to your table.**  
+Dynamic params update triggers automatic re-fetching with new criteria.
 
 ```typescript
 function ProductsTable() {
@@ -1016,9 +1316,10 @@ function ProductsTable() {
 }
 ```
 
-### With Sorting
+### ⬆️⬇️ With Sorting
 
-Implement sortable columns with ascending/descending order. The table automatically refetches when sort parameters change.
+**Implement sortable columns with ascending/descending order.**  
+The table automatically refetches when sort parameters change.
 
 ```typescript
 function SortableTable() {
@@ -1085,7 +1386,7 @@ function SortableTable() {
 }
 ```
 
-### API Reference
+### 📚 API Reference
 
 | Property/Method | Type | Description |
 |----------------|------|-------------|
@@ -1105,6 +1406,12 @@ function SortableTable() {
 
 ---
 
-## License
+## 📄 License
 
 MIT © Fajar Rizky Hidayat
+
+---
+
+<div align="center">
+  <strong>Made with ❤️ by Fajar Rizky Hidayat</strong>
+</div>
